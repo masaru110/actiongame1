@@ -7,7 +7,7 @@
 class Fps
 {
 public:
-	Fps();
+	Fps(): count( 0 ), time( 0 ), fps( 0.0 ) {}
 	~Fps() {}
 
 	void update();

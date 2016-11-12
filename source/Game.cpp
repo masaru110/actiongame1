@@ -16,18 +16,14 @@ Game::Game(): isProceed( true )
 	if( DxLib_Init() != -1 )
 	{
 		SetDrawScreen( DX_SCREEN_BACK );
-		initialize();
 	}
-	else { isProceed = false; }
+	else{ isProceed = false; }
 }
 //-----------------------------------------------------------------------------
 Game::~Game()
 {
 	DxLib_End();
 }
-//-----------------------------------------------------------------------------
-void Game::initialize()
-{}
 //-----------------------------------------------------------------------------
 int Game::execute()
 {
@@ -48,19 +44,14 @@ void Game::update()
 	fps.update();
 	input.update();
 
+	content.update( input );
+
 	//ESCÉLÅ[Ç™âüÇ≥ÇÍÇΩÇÁèIóπ
-	if( input.isPressedKey( KEY_INPUT_ESCAPE ) ) { isProceed = false; }
+	if( input.isPressedKey( KEY_INPUT_ESCAPE )){ isProceed = false; }
 }
 //-----------------------------------------------------------------------------
 void Game::render()const
 {
-	DrawBox( 220, 140, 420, 340, 0xff, true );
-
+	content.render();
 	fps.render();
-}
-//-----------------------------------------------------------------------------
-void Game::error( const char* err )
-{
-	MessageBox( nullptr, err, "ERROR", MB_ICONWARNING | MB_OK );
-	isProceed = false;
 }

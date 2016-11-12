@@ -1,6 +1,6 @@
 //=============================================================================
 /*
-	TestGame ver20160914  by peo
+	TestGame ver20161112  by masaru
 */
 //=============================================================================
 //	main.cpp
@@ -14,8 +14,7 @@
 #include "Game.h"
 
 //-----------------------------------------------------------------------------
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int )
 {
 	//ƒƒ‚ƒŠƒŠ[ƒNŒŸo
 	#if defined _DEBUG
@@ -23,9 +22,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	#endif
 
 	Game* game = new Game();
+
 	game->execute();
-	delete game;
-	game = nullptr;
+
+	safeDelete( game );
 
 	return 0;
 }
