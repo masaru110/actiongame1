@@ -6,46 +6,120 @@
 #include "Input.h"
 
 //-----------------------------------------------------------------------------
-void RedState::update( Content* content )
+struct Sequence
 {
-	content;
-	color = GetColor( 255, 0, 0 );
+	Sequence(){}
+	virtual ~Sequence(){}
+	virtual void update( const Input&, Content* ) = 0;
+	virtual void render()const = 0;
+};
+//-----------------------------------------------------------------------------
+struct Start :public Sequence
+{
+	void update( const Input&, Content* );
+	void render()const;
+}start;
+//-----------------------------------------------------------------------------
+struct MainSequence :public Sequence
+{
+	void update( const Input&, Content* );
+	void render()const;
+}mainSequence;
+//-----------------------------------------------------------------------------
+struct Dead :public Sequence
+{
+	void update( const Input&, Content* );
+	void render()const;
+}dead;
+//-----------------------------------------------------------------------------
+struct Clear :public Sequence
+{
+	void update( const Input&, Content* );
+	void render()const{}
+}clear;
+//-----------------------------------------------------------------------------
+void Start::update( const Input& input, Content* content )
+{
+	content->player.update( input, content->timer, content->map, content->inform );
+	if ( content->player.isDied() ){ content->changeSequence( &dead ); }
+
+	if ( content->isCounter( 60 ))
+	{ 
+		content->changeSequence( &mainSequence );
+	}
 }
 //-----------------------------------------------------------------------------
-void BlueState::update( Content* content )
+void Start::render()const
 {
-	content;
-	color = GetColor( 0, 0, 255 );
+	DrawFormatString( 100, 100, 0xff0000, "START!!" );
 }
 //-----------------------------------------------------------------------------
-void GreenState::update( Content* content )
+void MainSequence::update( const Input& input, Content* content )
 {
-	content;
-	color = GetColor( 0, 255, 0 );
+	content->player.update( input, content->timer, content->map, content->inform );
+	if ( content->player.isDied() ){ content->changeSequence( &dead ); }
+
+	//content->enemy.update( content->timer, content->map );
 }
 //-----------------------------------------------------------------------------
-void YellowState::update( Content* content )
+void MainSequence::render()const
 {
-	content;
-	color = GetColor( 255, 255, 0 );
 }
 //-----------------------------------------------------------------------------
-Content::Content(): proceed( true ), state( nullptr )
+void Dead::update( const Input& input, Content* content )
 {
-	state = &redState;
+	if ( content->isCounter( 120 ))
+	{
+		content->player.reset();
+		content->changeSequence( &start );
+	}
+}
+//-----------------------------------------------------------------------------
+void Dead::render()const
+{
+	DrawFormatString( 100, 100, 0xff0000, "DEAD!!" );
+}
+//-----------------------------------------------------------------------------
+void Clear::update( const Input& input, Content* content )
+{
+}
+//-----------------------------------------------------------------------------
+Content::Content(): sequence( nullptr ), proceed( true )
+{
+	sequence = &start;
+	graphics.isCreatedChips( "resorce/chip01.png" );
+	graphics.isCreatedStrings( "resorce/atari_font.png" );
 }
 //-----------------------------------------------------------------------------
 void Content::update( const Input& input )
 {
-	if( input.isPressedPad( PAD_INPUT_UP )){ state = &greenState; }
-	if( input.isPressedPad( PAD_INPUT_DOWN )){ state = &yellowState; }
-	if( input.isPressedPad( PAD_INPUT_LEFT )){ state = &redState; }
-	if( input.isPressedPad( PAD_INPUT_RIGHT )){ state = &blueState; }
-
-	state->update( this );
+	sequence->update( input, this );
+	timer.update();
 }
 //-----------------------------------------------------------------------------
 void Content::render()const
 {	
-	DrawBox( 220, 140, 420, 340, state->getColor(), true );
+	//”wŒiF
+	DrawBox( 0, 0, SCREEN_X, SCREEN_Y, GetColor( 51, 187, 255 ), true );
+	map.render();
+	//enemy.render( graphics );
+
+	//DrawFormatString( 100, 5, 0xffffff, "SCORE %d", score );
+	DrawFormatString( 240, 5, 0xffffff, "TIME %d", 255 - timer.time / 60 );
+	inform.render( graphics );
+
+	player.render( graphics );
+	sequence->render();
+}
+//-----------------------------------------------------------------------------
+bool Content::isCounter( const unsigned int max )
+{
+	if ( count.time > max )
+	{ 
+		count.clear(); 
+		return true; 
+	}
+
+	count.update();
+	return false;
 }

@@ -21,7 +21,7 @@ void Input::update()
 	std::array<char,KEY_ALL> tmp;
 	GetHitKeyStateAll( tmp.data() );
 
-	for( int i = 0; i < KEY_ALL; ++i )
+	for ( int i = 0; i < KEY_ALL; ++i )
 	{
 		( tmp[ i ] != 0 ) ? current.key[ i ] = true : current.key[ i ] = false;
 	}
@@ -29,7 +29,7 @@ void Input::update()
 //-----------------------------------------------------------------------------
 bool Input::isDownedPad( const int code )const
 {
-	switch( code )
+	switch ( code )
 	{
 		case PAD_INPUT_DOWN: return current.down;
 		case PAD_INPUT_LEFT: return current.left;
@@ -44,7 +44,7 @@ bool Input::isDownedPad( const int code )const
 //-----------------------------------------------------------------------------
 bool Input::isPressedPad( const int code )const
 {
-	switch( code )
+	switch ( code )
 	{
 		case PAD_INPUT_DOWN:
 			return isPressed( current.down, previous.down );
@@ -65,7 +65,7 @@ bool Input::isPressedPad( const int code )const
 //-----------------------------------------------------------------------------
 bool Input::isReleasedPad( const int code )const
 {
-	switch( code )
+	switch ( code )
 	{
 		case PAD_INPUT_DOWN:
 			return isReleased( current.down, previous.down );

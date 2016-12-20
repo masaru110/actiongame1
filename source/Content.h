@@ -2,48 +2,15 @@
 //	Content.h
 //=============================================================================
 #pragma once
+#include "Graphics.h"
+#include "Map.h"
+#include "Inform.h"
+#include "Player.h"
+#include "Enemy.h"
 
 class Input;
-class Content;
+struct Sequence;
 
-//-----------------------------------------------------------------------------
-class State
-{
-public:
-	State():color( 0 ){}
-	virtual ~State(){}
-
-	virtual void update( Content* ) = 0;
-
-	int getColor()const{ return color; }
-
-protected:
-	int color;
-};
-//-----------------------------------------------------------------------------
-class RedState :public State
-{
-public:
-	void update( Content* );
-};
-//-----------------------------------------------------------------------------
-class BlueState :public State
-{
-public:
-	void update( Content* );
-};
-//-----------------------------------------------------------------------------
-class GreenState :public State
-{
-public:
-	void update( Content* );
-};
-//-----------------------------------------------------------------------------
-class YellowState :public State
-{
-public:
-	void update( Content* );
-};
 //-----------------------------------------------------------------------------
 class Content
 {
@@ -54,14 +21,20 @@ public:
 	void update( const Input& );
 	void render()const;
 
+	bool isCounter( const unsigned int );
+
 	bool isProceed(){ return proceed; }
+	void changeSequence( Sequence* const seq ){ sequence = seq; }
+
+	Timer timer;
+	Timer count;
+	Graphics graphics;
+	Map map;
+	Inform inform;
+	Player player;
+	Enemy enemy;
 
 private:
-	State* state;
-	RedState redState;
-	BlueState blueState;
-	GreenState greenState;
-	YellowState yellowState;
-
+	Sequence* sequence;
 	bool proceed;
 };
