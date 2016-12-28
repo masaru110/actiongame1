@@ -4,6 +4,7 @@
 #pragma once
 #include "Graphics.h"
 #include "Map.h"
+#include "Camera.h"
 #include "Inform.h"
 #include "Player.h"
 #include "Enemy.h"
@@ -30,11 +31,13 @@ public:
 	Timer count;
 	Graphics graphics;
 	Map map;
+	Camera camera;
 	Inform inform;
 	Player player;
 	Enemy enemy;
 
 private:
+	static const int MAX_TIME = 255;
 	Sequence* sequence;
 	bool proceed;
 };

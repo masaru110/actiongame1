@@ -22,9 +22,8 @@ Position<float> Camera::move( const Position<float> pos, const int max )
 	{ 
 		position.x = 0; 
 		mov.x = pos.x;
-
 	}
-	if ( position.x > max - windowSize.x )
+	else if ( position.x > max - windowSize.x )
 	{ 
 		position.x = max - windowSize.x;
 		mov.x = pos.x - ( max - windowSize.x );

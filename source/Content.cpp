@@ -35,13 +35,23 @@ struct Dead :public Sequence
 struct Clear :public Sequence
 {
 	void update( const Input&, Content* );
-	void render()const{}
+	void render()const;
 }clear;
 //-----------------------------------------------------------------------------
 void Start::update( const Input& input, Content* content )
 {
 	content->player.update( input, content->timer, content->map, content->inform );
-	if ( content->player.isDied() ){ content->changeSequence( &dead ); }
+	content->camera.move( content->player.getPos(), content->map.getWidthF() );
+	content->map.update( content->camera.getPos() );
+
+	if ( content->player.isAction( content->player.DEAD ) )
+	{
+		content->changeSequence( &dead );
+	}
+	if ( content->player.isAction( content->player.CLEAR ) )
+	{
+		content->changeSequence( &clear );
+	}
 
 	if ( content->isCounter( 60 ))
 	{ 
@@ -57,7 +67,17 @@ void Start::render()const
 void MainSequence::update( const Input& input, Content* content )
 {
 	content->player.update( input, content->timer, content->map, content->inform );
-	if ( content->player.isDied() ){ content->changeSequence( &dead ); }
+	content->camera.move( content->player.getPos(), content->map.getWidthF() );
+	content->map.update( content->camera.getPos() );
+
+	if ( content->player.isAction( content->player.DEAD ) )
+	{
+		content->changeSequence( &dead );
+	}
+	if ( content->player.isAction( content->player.CLEAR ) )
+	{
+		content->changeSequence( &clear );
+	}
 
 	//content->enemy.update( content->timer, content->map );
 }
@@ -82,13 +102,24 @@ void Dead::render()const
 //-----------------------------------------------------------------------------
 void Clear::update( const Input& input, Content* content )
 {
+	if ( content->isCounter( 120 ))
+	{
+		content->player.reset();
+		content->changeSequence( &start );
+		content->timer.clear();
+	}
+}	
+//-----------------------------------------------------------------------------
+void Clear::render()const
+{
+	DrawFormatString( 100, 100, 0xff0000, "CLEAR!!" );
 }
 //-----------------------------------------------------------------------------
 Content::Content(): sequence( nullptr ), proceed( true )
 {
 	sequence = &start;
 	graphics.isCreatedChips( "resorce/chip01.png" );
-	graphics.isCreatedStrings( "resorce/atari_font.png" );
+	graphics.isCreatedStrings( "resorce/atari_font2.png" );
 }
 //-----------------------------------------------------------------------------
 void Content::update( const Input& input )
@@ -104,9 +135,7 @@ void Content::render()const
 	map.render();
 	//enemy.render( graphics );
 
-	//DrawFormatString( 100, 5, 0xffffff, "SCORE %d", score );
-	DrawFormatString( 240, 5, 0xffffff, "TIME %d", 255 - timer.time / 60 );
-	inform.render( graphics );
+	inform.render( graphics, MAX_TIME - timer.time / 60 );
 
 	player.render( graphics );
 	sequence->render();

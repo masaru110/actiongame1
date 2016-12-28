@@ -15,7 +15,7 @@ Player::Player(): action( STAND ), jump( 0.0F ), anime( 0 ),
 }
 //-----------------------------------------------------------------------------
 void Player::update( const Input& input, const Timer& t, 
-	Map& map, Inform& score )
+	Map& map, Inform& inform )
 { 
 	const float SPEED = 1.0F;
 	const float GRAVITY = 0.2F; 
@@ -39,7 +39,7 @@ void Player::update( const Input& input, const Timer& t,
 		action = WALK;
 	}
 
-	// 地に足が着いている場合のみジャンプ
+	// 地面に足が着いている場合のみジャンプ
 	if ( isGround && ( input.isPressedPad( PAD_INPUT_UP )))
 	{
 		jump = -JUMP_POWER;
@@ -49,17 +49,34 @@ void Player::update( const Input& input, const Timer& t,
 	
 	jump += GRAVITY;//落下処理	
 	move.y = jump;//落下速度を移動量に加える
-	//move.y = min( 4.0F, move.y );//最大落下速度
 
-	collisionWithMap( map, score, move );
+	//マップとの衝突による位置補正
+	collisionWithMap( map, inform, move );
+
+	//地上判定による位置補正
 	onGround( map );
 
-	//死亡
+	//死亡処理
 	if ( position.y > SCREEN_Y + CHIP ){ action = DEAD; }
 
-	draw.x = ( int )position.x;
+	//移動制限
+	position.x = max( CHIP / 2, position.x );//左端
+	position.x = min( map.getWidthF() - CHIP / 2, position.x );//右端
+
+	//描画位置の算出
+	if ( position.x < SCREEN_X / 2 )//左端
+	{ 
+		draw.x = ( int )position.x;
+	}
+	else if ( position.x > map.getWidthF() - SCREEN_X / 2 )//右端
+	{
+		draw.x = ( int )position.x - ( map.getWidthF() - SCREEN_X );
+	}
+	else { draw.x = SCREEN_X / 2; }
+
 	draw.y = ( int )position.y;
-        
+    
+	//アニメーション
 	animetion( t );
 }
 //-----------------------------------------------------------------------------
@@ -129,12 +146,15 @@ void Player::collisionWithMap( Map& map, Inform& inform, Position<float>& move )
 		switch ( map.getObjectFromTwoPoints( pos1, pos2 ))
 		{
 			case 1://通常ブロック
-				adjustMovement( move.y, bottom, 0 );
+				adjustMovement( move.y, bottom );
 				jump = 0.0F;
 				break;
 			case 2://コイン
 				map.setObjectFromTwoPoints( pos1, pos2 );
-				inform.add( 10 );
+				inform.addScore( 10 );
+				break;
+			case 3://クリア
+				action = CLEAR;
 				break;
 		}
 	}
@@ -152,7 +172,10 @@ void Player::collisionWithMap( Map& map, Inform& inform, Position<float>& move )
 				break;
 			case 2://コイン
 				map.setObjectFromTwoPoints( pos1, pos2 );
-				inform.add( 10 );
+				inform.addScore( 10 );
+				break;
+			case 3://クリア
+				action = CLEAR;
 				break;
 			//default:
 		}
@@ -173,7 +196,10 @@ void Player::collisionWithMap( Map& map, Inform& inform, Position<float>& move )
 				break;
 			case 2://コイン
 				map.setObjectFromTwoPoints( pos1, pos2 );
-				inform.add( 10 );
+				inform.addScore( 10 );
+				break;
+			case 3://クリア
+				action = CLEAR;
 				break;
 			//default:
 		}
@@ -187,11 +213,14 @@ void Player::collisionWithMap( Map& map, Inform& inform, Position<float>& move )
 		switch ( map.getObjectFromTwoPoints( pos1, pos2 ))
 		{
 			case 1://通常ブロック
-				adjustMovement( move.x, right, 0 );
+				adjustMovement( move.x, right );
 				break;
 			case 2://コイン
 				map.setObjectFromTwoPoints( pos1, pos2 );
-				inform.add( 10 );
+				inform.addScore( 10 );
+				break;
+			case 3://クリア
+				action = CLEAR;
 				break;
 			//default:
 		}

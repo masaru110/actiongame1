@@ -17,22 +17,23 @@ public:
 	Player();
 	~Player() {}
 
+	enum Action{ STAND, WALK, JUMP, DEAD, CLEAR };
+
 	void update( const Input&, const Timer&, Map&, Inform& );
 	void render( const Graphics& )const;
 
 	void reset();
 
 	Position<float> getPos()const{ return position; }
-	bool isDied()const{ return ( action == DEAD ); }
+	bool isAction( Action act )const{ return ( action == act ); }
 
 private:
 	static const int SIZE =  12;
-	enum Action{ STAND, WALK, JUMP, DEAD }action;
 
 	void animetion( const Timer& );
 	float replacement(const float, const int );
 	void collisionWithMap( Map&, Inform&, Position<float>& );
-	void adjustMovement( float&, const float, const int );
+	void adjustMovement( float&, const float, const int shift = 0 );
 	void onGround( Map& );
 
 	Position<float> position;//プレイヤーの座標(中心座標)
@@ -41,4 +42,5 @@ private:
 	int anime;
 	bool isTurn;//向き
 	bool isGround;//着地フラグ
+	Action action;
 };

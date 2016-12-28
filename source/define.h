@@ -26,7 +26,8 @@ struct Position
 	Position( Type dx, Type dy ){ x = dx, y = dy; }
 	~Position(){}
 
-	void set( Type dx, Type dy ){ x = dx, y = dy; }
+	Position& set( Type dx, Type dy ){ x = dx, y = dy; return *this; }
+
 	Type x;
 	Type y;
 };
